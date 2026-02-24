@@ -1,0 +1,79 @@
+cd "C:\Users\rarmero\OneDrive - FERRER\Escritorio\MentorIA\Registro"
+
+for /f "delims=" %i in ('powershell -NoProfile -Command "Get-Date -Format yyyyMMddHHmmssfff"') do set FECHAHORA=%i
+
+set PROJECT_ID=ferrer-odiseia4good-sandbox
+set REGION=europe-west1
+set SERVICE=registro
+set REPO=cloud-run-source-deploy
+set VERSION=latest
+set IMAGE=%REGION%-docker.pkg.dev/%PROJECT_ID%/%REPO%/%SERVICE%:%VERSION%
+set CB_BUCKET=gs://%PROJECT_ID%-cb-%REGION%
+set MIN_INSTANCES=0
+set MAX_INSTANCES=10
+set JWT_SECRET_NAME=%SERVICE%-jwt-secret
+set ADMIN_SECRET_NAME=%SERVICE%-admin-secret
+set API_ID=odiseia-api-%SERVICE%
+set API_CONFIG=odiseia-config-%VERSION%-%FECHAHORA%
+set GATEWAY=odiseia-gw-%SERVICE%
+gcloud auth login
+
+gcloud config set project %PROJECT_ID%
+gcloud config set run/region %REGION%
+
+gcloud services enable run.googleapis.com artifactregistry.googleapis.com cloudbuild.googleapis.com apigateway.googleapis.com servicemanagement.googleapis.com servicecontrol.googleapis.com secretmanager.googleapis.com firestore.googleapis.com
+
+gcloud storage buckets create %CB_BUCKET% --location=%REGION%
+gcloud api-gateway apis create %API_ID%
+gcloud firestore databases create --location=%REGION% --type=firestore-native
+
+python -c "import secrets; print(secrets.token_urlsafe(64))"
+----> L9h9MRzzQ5UEhaWRJSaN-OHyog-yTUEKQ-J8ocox6WhMzNUnC4h4ZzeDKoqAvizdKVbaDnJeWvQk1vqEZElwOw
+set JWT_SECRET=L9h9MRzzQ5UEhaWRJSaN-OHyog-yTUEKQ-J8ocox6WhMzNUnC4h4ZzeDKoqAvizdKVbaDnJeWvQk1vqEZElwOw
+
+python -c "import secrets; print(secrets.token_urlsafe(64))"
+----> 6yKBJ6teEd5D_fL2QdXr7vOLpcEOUl4511P4CoNKeg_HJg7rd1swhhmtiaGPneKKli0AJ3w-Uys5p6bcAkhP0Q
+set ADMIN_SECRET=6yKBJ6teEd5D_fL2QdXr7vOLpcEOUl4511P4CoNKeg_HJg7rd1swhhmtiaGPneKKli0AJ3w-Uys5p6bcAkhP0Q
+
+(echo|set /p="%JWT_SECRET%") | gcloud secrets create "%JWT_SECRET_NAME%" --data-file=- --replication-policy=user-managed --locations="%REGION%"
+(echo|set /p="%ADMIN_SECRET%") | gcloud secrets create "%ADMIN_SECRET_NAME%" --data-file=- --replication-policy=user-managed --locations="%REGION%"
+
+gcloud projects describe %PROJECT_ID% --format="value(projectNumber)"
+-----> 884652087350
+set PROJECT_NUM=884652087350
+set RUN_SA=%PROJECT_NUM%-compute@developer.gserviceaccount.com
+gcloud secrets add-iam-policy-binding %JWT_SECRET_NAME% --member="serviceAccount:%RUN_SA%" --role="roles/secretmanager.secretAccessor"
+gcloud secrets add-iam-policy-binding %ADMIN_SECRET_NAME% --member="serviceAccount:%RUN_SA%" --role="roles/secretmanager.secretAccessor"
+gcloud projects add-iam-policy-binding %PROJECT_ID% --member="serviceAccount:%RUN_SA%" --role="roles/datastore.user"
+gcloud projects add-iam-policy-binding %PROJECT_ID% --member="serviceAccount:%RUN_SA%" --role="roles/serviceusage.serviceUsageConsumer"
+set APIGW_SA=service-%PROJECT_NUM%@gcp-sa-apigateway.iam.gserviceaccount.com
+
+gcloud artifacts repositories create %REPO% --repository-format=docker --location=%REGION%
+gcloud auth configure-docker %REGION%-docker.pkg.dev
+gcloud builds submit . --region=%REGION% --tag %IMAGE% --gcs-source-staging-dir=%CB_BUCKET%/staging --gcs-log-dir=%CB_BUCKET%/logs
+gcloud run deploy %SERVICE% --image %IMAGE% --region %REGION% --platform managed  --allow-unauthenticated  --port 8080  --set-env-vars "APP_BASE_URL=https://odiseia-gw-portal-baej0f92.ew.gateway.dev,BASEDATOS_ENDPOINT=odiseia-gw-basedatos-baej0f92.ew.gateway.dev,BASEDATOS_API_KEY=AIzaSyBmJRwoqf2POH0GZbidipRW9JhUlcnlRKc" --set-secrets "JWT_SECRET=%JWT_SECRET_NAME%:latest,ADMIN_SECRET=%ADMIN_SECRET_NAME%:latest"
+gcloud run services add-iam-policy-binding %SERVICE% --region %REGION% --member="serviceAccount:%APIGW_SA%" --role="roles/run.invoker"
+gcloud run services update %SERVICE% --min-instances=%MIN_INSTANCES% --max-instances=%MAX_INSTANCES% --region=%REGION% --project=%PROJECT_ID%
+gcloud run services describe %SERVICE% --region %REGION% --format="value(status.url)"
+---->https://registro-cwf5jjcg7a-ew.a.run.app
+
+
+
+
+gcloud api-gateway api-configs create %API_CONFIG% --api=%API_ID% --openapi-spec=openapi-gateway.yaml  --project=%PROJECT_ID%
+gcloud api-gateway gateways create %GATEWAY% --api=%API_ID% --api-config=%API_CONFIG% --location=%REGION%  --project=%PROJECT_ID%
+gcloud api-gateway gateways describe %GATEWAY% --location=%REGION% --format="value(defaultHostname)"
+---->  odiseia-gw-registro-baej0f92.ew.gateway.dev
+set ENDPOINT=odiseia-gw-registro-baej0f92.ew.gateway.dev
+
+gcloud api-gateway apis describe %API_ID% --project=%PROJECT_ID%
+-----> (managedService:) odiseia-api-registro-2354kuynuv0oi.apigateway.ferrer-odiseia4good-sandbox.cloud.goog
+set MANAGED_SERVICE=odiseia-api-registro-2354kuynuv0oi.apigateway.ferrer-odiseia4good-sandbox.cloud.goog
+gcloud services enable %MANAGED_SERVICE% --project=%PROJECT_ID%
+
+
+----> AIzaSyDa4toPt4-AQyQBCTAj8qsxSJbcs7ORUn8
+set API_KEY=AIzaSyDa4toPt4-AQyQBCTAj8qsxSJbcs7ORUn8
+
+
+curl -s -X POST "https://%ENDPOINT%/admin/invitations" -H "Content-Type: application/json" -H "x-api-key: %API_KEY%" -H "X-Admin-Secret: %ADMIN_SECRET%" -d "{\"role\":\"centro\",\"username\":\"ferri\",\"centro_id\":null}"

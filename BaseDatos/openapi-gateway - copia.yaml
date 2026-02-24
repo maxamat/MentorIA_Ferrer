@@ -1,0 +1,1171 @@
+swagger: "2.0"
+info:
+  title: "basedatos"
+  version: "1.0.0"
+schemes:
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+
+securityDefinitions:
+  api_key:
+    type: apiKey
+    name: x-api-key
+    in: header
+
+security:
+  - api_key: []
+
+# Backend global: evita repetirlo en cada path
+x-google-backend:
+  address: https://basedatos-cwf5jjcg7a-ew.a.run.app
+  path_translation: APPEND_PATH_TO_ADDRESS
+
+# Extensión para habilitar CORS
+x-google-allow: configured
+x-google-endpoints:
+  - name: odiseia-gw-basedatos-baej0f92.ew.gateway.dev
+    allowCors: true
+
+paths:
+  /health:
+    get:
+      operationId: health
+      responses:
+        "200":
+          description: OK
+
+  /setup:
+    get:
+      operationId: setup
+      responses:
+        "200":
+          description: OK
+
+  /crear_centro:
+    post:
+      operationId: crear_centro
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required: [centro_id]
+            properties:
+              centro_id:
+                type: string
+      responses:
+        "200":
+          description: OK
+
+  /borrar_centro:
+    post:
+      operationId: borrar_centro
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required: [centro_id]
+            properties:
+              centro_id:
+                type: string
+      responses:
+        "200":
+          description: OK
+
+  /crear_profesor:
+    options:
+      operationId: crear_profesor_options
+      security: []
+      responses:
+        "200":
+          description: CORS preflight
+    post:
+      operationId: crear_profesor
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required: [centro_id, profesor_id]
+            properties:
+              centro_id:
+                type: string
+              profesor_id:
+                type: string
+      responses:
+        "200":
+          description: OK
+
+  /borrar_profesor:
+    options:
+      operationId: borrar_profesor_options
+      security: []
+      responses:
+        "200":
+          description: CORS preflight
+    post:
+      operationId: borrar_profesor
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required: [centro_id, profesor_id]
+            properties:
+              centro_id:
+                type: string
+              profesor_id:
+                type: string
+      responses:
+        "200":
+          description: OK
+
+  /crear_alumno:
+    options:
+      operationId: crear_alumno_options
+      security: []
+      responses:
+        "200":
+          description: CORS preflight
+    post:
+      operationId: crear_alumno
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required: [centro_id, alumno_id]
+            properties:
+              centro_id:
+                type: string
+              alumno_id:
+                type: string
+      responses:
+        "200":
+          description: OK
+          
+  /verificar_consentimiento:
+    get:
+      operationId: verificar_consentimiento
+      parameters:
+        - name: user_id
+          in: query
+          required: true
+          type: string
+        - name: centro_id
+          in: query
+          required: true
+          type: string
+      responses:
+        "200":
+          description: OK
+
+  /registrar_consentimiento:
+    options:
+      operationId: registrar_consentimiento_options
+      security: []
+      responses:
+        "200":
+          description: CORS preflight
+    post:
+      operationId: registrar_consentimiento
+      parameters:
+        - name: user_id
+          in: query
+          required: true
+          type: string
+        - name: centro_id
+          in: query
+          required: true
+          type: string
+      responses:
+        "200":
+          description: OK
+          
+  /actualizar_avatar_config:
+    options:
+      operationId: actualizar_avatar_config_options
+      security: []
+      responses:
+        "200":
+          description: CORS preflight
+    post:
+      operationId: actualizar_avatar_config
+      x-google-backend:
+        address: https://basedatos-cwf5jjcg7a-ew.a.run.app
+        path_translation: APPEND_PATH_TO_ADDRESS
+        deadline: 120.0
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required: [centro_id, alumno_id, color_pelo, color_ojos, color_piel, color_labios, color_camiseta, genero, tipo_peinado]
+            properties:
+              centro_id:
+                type: string
+              alumno_id:
+                type: string
+              color_pelo:
+                type: string
+              color_ojos:
+                type: string
+              color_piel:
+                type: string
+              color_labios:
+                type: string
+              color_camiseta:
+                type: string
+              genero:
+                type: string
+              tipo_peinado:
+                type: string
+      responses:
+        "200":
+          description: OK
+
+  /listar_avatar_config:
+    options:
+      operationId: listar_avatar_config_options
+      security: []
+      responses:
+        "200":
+          description: CORS preflight
+    post:
+      operationId: listar_avatar_config
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required: [centro_id, alumno_id]
+            properties:
+              centro_id:
+                type: string
+              alumno_id:
+                type: string
+      responses:
+        "200":
+          description: OK
+  /borrar_alumno:
+    options:
+      operationId: borrar_alumno_options
+      security: []
+      responses:
+        "200":
+          description: CORS preflight
+    post:
+      operationId: borrar_alumno
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required: [centro_id, alumno_id]
+            properties:
+              centro_id:
+                type: string
+              alumno_id:
+                type: string
+      responses:
+        "200":
+          description: OK
+
+  /listar_asignaturas_alumno:
+    options:
+      operationId: listar_asignaturas_alumno_options
+      security: []
+      responses:
+        "200":
+          description: CORS preflight
+    post:
+      operationId: listar_asignaturas_alumno
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required: [centro_id, alumno_id]
+            properties:
+              centro_id:
+                type: string
+              alumno_id:
+                type: string
+      responses:
+        "200":
+          description: OK
+          
+  /crear_clase:
+    options:
+      operationId: crear_clase_options
+      security: []
+      responses:
+        "200":
+          description: CORS preflight
+    post:
+      operationId: crear_clase
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required: [centro_id, clase]
+            properties:
+              centro_id:
+                type: string
+              clase:
+                type: string
+      responses:
+        "200":
+          description: OK
+
+  /borrar_clase:
+    options:
+      operationId: borrar_clase_options
+      security: []
+      responses:
+        "200":
+          description: CORS preflight
+    post:
+      operationId: borrar_clase
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required: [centro_id, clase]
+            properties:
+              centro_id:
+                type: string
+              clase:
+                type: string
+      responses:
+        "200":
+          description: OK
+
+  /actualizar_clase:
+    options:
+      operationId: actualizar_clase_options
+      security: []
+      responses:
+        "200":
+          description: CORS preflight
+    post:
+      operationId: actualizar_clase
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required: [centro_id, clase, clase_antigua]
+            properties:
+              centro_id:
+                type: string
+              clase:
+                type: string
+              clase_antigua:
+                type: string
+      responses:
+        "200":
+          description: OK
+
+  /crear_asignatura:
+    options:
+      operationId: crear_asignatura_options
+      security: []
+      responses:
+        "200":
+          description: CORS preflight
+    post:
+      operationId: crear_asignatura
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required: [centro_id, asignatura, imagebase64]
+            properties:
+              centro_id:
+                type: string
+              asignatura:
+                type: string
+              imagebase64:
+                type: string
+      responses:
+        "200":
+          description: OK
+
+  /borrar_asignatura:
+    options:
+      operationId: borrar_asignatura_options
+      security: []
+      responses:
+        "200":
+          description: CORS preflight
+    post:
+      operationId: borrar_asignatura
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required: [centro_id, asignatura]
+            properties:
+              centro_id:
+                type: string
+              asignatura:
+                type: string
+      responses:
+        "200":
+          description: OK
+
+  /actualizar_asignatura:
+    options:
+      operationId: actualizar_asignatura_options
+      security: []
+      responses:
+        "200":
+          description: CORS preflight
+    post:
+      operationId: actualizar_asignatura
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required: [centro_id, asignatura, asignatura_antigua]
+            properties:
+              centro_id:
+                type: string
+              asignatura:
+                type: string
+              asignatura_antigua:
+                type: string
+              imagebase64:
+                type: string
+      responses:
+        "200":
+          description: OK
+
+  /borrar_asignatura_profesor:
+    options:
+      operationId: borrar_asignatura_profesor_options
+      security: []
+      responses:
+        "200":
+          description: CORS preflight
+    post:
+      operationId: borrar_asignatura_profesor
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required: [centro_id, clase, profesor_id, asignatura]
+            properties:
+              centro_id:
+                type: string
+              clase:
+                type: string
+              profesor_id:
+                type: string
+              asignatura:
+                type: string
+      responses:
+        "200":
+          description: OK
+
+  /crear_asignatura_profesor:
+    options:
+      operationId: crear_asignatura_profesor_options
+      security: []
+      responses:
+        "200":
+          description: CORS preflight
+    post:
+      operationId: crear_asignatura_profesor
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required: [centro_id, clase, profesor_id, asignatura]
+            properties:
+              centro_id:
+                type: string
+              clase:
+                type: string
+              profesor_id:
+                type: string
+              asignatura:
+                type: string
+      responses:
+        "200":
+          description: OK
+
+  /actualizar_asignatura_profesor:
+    options:
+      operationId: actualizar_asignatura_profesor_options
+      security: []
+      responses:
+        "200":
+          description: CORS preflight
+    post:
+      operationId: actualizar_asignatura_profesor
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required: [centro_id, clase, profesor_id, asignatura, clase_antigua, profesor_id_antiguo, asignatura_antigua]
+            properties:
+              centro_id:
+                type: string
+              clase:
+                type: string
+              profesor_id:
+                type: string
+              asignatura:
+                type: string
+              clase_antigua:
+                type: string
+              profesor_id_antiguo:
+                type: string
+              asignatura_antigua:
+                type: string
+      responses:
+        "200":
+          description: OK
+
+  /listar_asignaciones:
+    options:
+      operationId: listar_asignaciones_options
+      security: []
+      responses:
+        "200":
+          description: CORS preflight
+    post:
+      operationId: listar_asignaciones
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required: [centro_id]
+            properties:
+              centro_id:
+                type: string
+      responses:
+        "200":
+          description: OK
+
+  /crear_alumno_clase:
+    options:
+      operationId: crear_alumno_clase_options
+      security: []
+      responses:
+        "200":
+          description: CORS preflight
+    post:
+      operationId: crear_alumno_clase
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required: [centro_id, clase, alumno_id]
+            properties:
+              centro_id:
+                type: string
+              clase:
+                type: string
+              alumno_id:
+                type: string
+      responses:
+        "200":
+          description: OK
+
+  /borrar_alumno_clase:
+    options:
+      operationId: borrar_alumno_clase_options
+      security: []
+      responses:
+        "200":
+          description: CORS preflight
+    post:
+      operationId: borrar_alumno_clase
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required: [centro_id, clase, alumno_id]
+            properties:
+              centro_id:
+                type: string
+              clase:
+                type: string
+              alumno_id:
+                type: string
+      responses:
+        "200":
+          description: OK
+
+  /actualizar_alumno_clase:
+    options:
+      operationId: actualizar_alumno_clase_options
+      security: []
+      responses:
+        "200":
+          description: CORS preflight
+    post:
+      operationId: actualizar_alumno_clase
+      x-google-backend:
+        address: https://basedatos-cwf5jjcg7a-ew.a.run.app
+        path_translation: APPEND_PATH_TO_ADDRESS
+        deadline: 120.0
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required: [centro_id, clase, alumno_id, clase_antigua, alumno_id_antiguo]
+            properties:
+              centro_id:
+                type: string
+              clase:
+                type: string
+              alumno_id:
+                type: string
+              clase_antigua:
+                type: string
+              alumno_id_antiguo:
+                type: string
+      responses:
+        "200":
+          description: OK
+
+  /listar_asignaciones_alumnos:
+    options:
+      operationId: listar_asignaciones_alumnos_options
+      security: []
+      responses:
+        "200":
+          description: CORS preflight
+    post:
+      operationId: listar_asignaciones_alumnos
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required: [centro_id]
+            properties:
+              centro_id:
+                type: string
+      responses:
+        "200":
+          description: OK
+
+  /listar_clases:
+    options:
+      operationId: listar_clases_options
+      security: []
+      responses:
+        "200":
+          description: CORS preflight
+    post:
+      operationId: listar_clases
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required: [centro_id]
+            properties:
+              centro_id:
+                type: string
+      responses:
+        "200":
+          description: OK
+
+  /listar_clases_profesores:
+    options:
+      operationId: listar_clases_profesores_options
+      security: []
+      responses:
+        "200":
+          description: CORS preflight
+    post:
+      operationId: listar_clases_profesores
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required: [centro_id, profesor_id]
+            properties:
+              centro_id:
+                type: string
+              profesor_id:
+                type: string
+      responses:
+        "200":
+          description: OK
+
+  /listar_profesores:
+    options:
+      operationId: listar_profesores_options
+      security: []
+      responses:
+        "200":
+          description: CORS preflight
+    post:
+      operationId: listar_profesores
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required: [centro_id]
+            properties:
+              centro_id:
+                type: string
+      responses:
+        "200":
+          description: OK
+
+  /listar_alumnos:
+    options:
+      operationId: listar_alumnos_options
+      security: []
+      responses:
+        "200":
+          description: CORS preflight
+    post:
+      operationId: listar_alumnos
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required: [centro_id]
+            properties:
+              centro_id:
+                type: string
+      responses:
+        "200":
+          description: OK
+
+  /listar_asignaturas:
+    options:
+      operationId: listar_asignaturas_options
+      security: []
+      responses:
+        "200":
+          description: CORS preflight
+    post:
+      operationId: listar_asignaturas
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required: [centro_id]
+            properties:
+              centro_id:
+                type: string
+      responses:
+        "200":
+          description: OK
+
+  /actualizar_alumno_interes:
+    options:
+      operationId: actualizar_alumno_interes_options
+      security: []
+      responses:
+        "200":
+          description: CORS preflight
+    post:
+      operationId: actualizar_alumno_interes
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required: [centro_id, alumno_id]
+            properties:
+              centro_id:
+                type: string
+              alumno_id:
+                type: string
+              texto_que_asignaturas_se_te_dan_mejor:
+                type: string
+              texto_que_te_frustra_a_estudiar:
+                type: string
+              texto_que_te_ayuda_a_entender:
+                type: string
+              texto_que_te_motiva:
+                type: string  
+              texto_tiempo_libre:
+                type: string
+              turno_formativo:
+                type: string
+              max_tiempo_desplazamiento:
+                type: integer
+      responses:
+        "200":
+          description: OK
+
+  /listar_intereses_alumnos:
+    options:
+      operationId: listar_intereses_alumnos_options
+      security: []
+      responses:
+        "200":
+          description: CORS preflight
+    post:
+      operationId: listar_intereses_alumnos
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required: [centro_id, alumno_id]
+            properties:
+              centro_id:
+                type: string
+              alumno_id:
+                type: string
+      responses:
+        "200":
+          description: OK
+
+  /listar_salidas_alumno:
+    options:
+      operationId: listar_salidas_alumno_options
+      security: []
+      responses:
+        "200":
+          description: CORS preflight
+    post:
+      operationId: listar_salidas_alumno
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required: [centro_id, alumno_id]
+            properties:
+              centro_id:
+                type: string
+              alumno_id:
+                type: string
+      responses:
+        "200":
+          description: OK
+
+  /modificar_salidas_alumno:
+    options:
+      operationId: modificar_salidas_alumno_options
+      security: []
+      responses:
+        "200":
+          description: CORS preflight
+    post:
+      operationId: modificar_salidas_alumno
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required: [centro_id, alumno_id, flag_like, salida_id]
+            properties:
+              centro_id:
+                type: string
+              alumno_id:
+                type: string
+              salida_id:
+                type: string
+              flag_like:
+                type: boolean
+      responses:
+        "200":
+          description: OK
+
+  /listar_direcciones_centros:
+    options:
+      operationId: listar_direcciones_centros_options
+      security: []
+      responses:
+        "200":
+          description: CORS preflight
+    post:
+      operationId: listar_direcciones_centros
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required: [centro_id, alumno_id]
+            properties:
+              centro_id:
+                type: string
+              alumno_id:
+                type: string
+      responses:
+        "200":
+          description: OK
+  
+  /modificar_direcciones_centro:
+    options:
+      operationId: modificar_direcciones_centro_options
+      security: []
+      responses:
+        "200":
+          description: CORS preflight
+    post:
+      operationId: modificar_direcciones_centro
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required: [centro_id]
+            properties:
+              centro_id:
+                type: string
+              pais: 
+                type: string
+              ccaa:
+                type: string
+              provincia:
+                type: string
+              municipio:
+                type: string
+      responses:
+        "200":
+          description: OK
+
+  /listar_paises:
+    options:
+      operationId: listar_paises_options
+      security: []
+      responses:
+        "200":
+          description: CORS preflight
+    post:
+      operationId: listar_paises
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required: [centro_id]
+            properties:
+              centro_id:
+                type: string
+      responses:
+        "200":
+          description: OK
+
+  /listar_ccaas:
+    options:
+      operationId: listar_ccaas_options
+      security: []
+      responses:
+        "200":
+          description: CORS preflight
+    post:
+      operationId: listar_ccaas
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required: [centro_id, pais]
+            properties:
+              centro_id:
+                type: string
+              pais:
+                type: string
+      responses:
+        "200":
+          description: OK
+
+  /listar_provincias:
+    options:
+      operationId: listar_provincias_options
+      security: []
+      responses:
+        "200":
+          description: CORS preflight
+    post:
+      operationId: listar_provincias
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required: [centro_id, pais, ccaa]
+            properties:
+              centro_id:
+                type: string
+              pais:
+                type: string
+              ccaa:
+                type: string
+      responses:
+        "200":
+          description: OK
+  
+  /listar_municipios:
+    options:
+      operationId: listar_municipios_options
+      security: []
+      responses:
+        "200":
+          description: CORS preflight
+    post:
+      operationId: listar_municipios
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required: [centro_id, pais, ccaa, provincias]
+            properties:
+              centro_id:
+                type: string
+              pais:
+                type: string
+              ccaa:
+                type: string
+              provincia:
+                type: string
+      responses:
+        "200":
+          description: OK
+
+  /listar_curriculums:
+    options:
+      operationId: listar_curriculums_options
+      security: []
+      responses:
+        "200":
+          description: CORS preflight
+    post:
+      operationId: listar_curriculums
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required: [centro_id]
+            properties:
+              centro_id:
+                type: string
+      responses:
+        "200":
+          description: OK
+
+  /crear_curriculums:
+    options:
+      operationId: crear_curriculums_options
+      security: []
+      responses:
+        "200":
+          description: CORS preflight
+    post:
+      operationId: crear_curriculums
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required: [centro_id, nombre, descripcion, metaprompt,fecha, base64_pdf]
+            properties:
+              centro_id:
+                type: string
+              nombre:
+                type: string
+              descripcion:
+                type: string
+              metaprompt:
+                type: string
+              fecha:
+                type: string
+              base64_pdf:
+                type: string
+      responses:
+        "200":
+          description: OK
+
+  /borrar_curriculums:
+    options:
+      operationId: borrar_curriculums_options
+      security: []
+      responses:
+        "200":
+          description: CORS preflight
+    post:
+      operationId: borrar_curriculums
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required: [centro_id, nombre]
+            properties:
+              centro_id:
+                type: string
+              nombre:
+                type: string
+      responses:
+        "200":
+          description: OK

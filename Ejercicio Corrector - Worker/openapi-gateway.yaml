@@ -1,0 +1,62 @@
+swagger: "2.0"
+info:
+  title: "ejercicio-corrector-worker"
+  version: "1.0.0"
+schemes:
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+
+x-google-backend:
+  address: https://ejercicio-corrector-worker-cwf5jjcg7a-ew.a.run.app
+  path_translation: APPEND_PATH_TO_ADDRESS
+
+paths:
+  /:
+    post:
+      summary: "Recibe mensajes de PubSub"
+      operationId: pubsub_push
+      security: []
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              message:
+                type: object
+                properties:
+                  data:
+                    type: string
+                  messageId:
+                    type: string
+                  publishTime:
+                    type: string
+              subscription:
+                type: string
+      responses:
+        "200":
+          description: Mensaje procesado correctamente
+        "400":
+          description: Formato de mensaje inv\u00e1lido
+        "500":
+          description: Error procesando mensaje
+    get:
+      summary: "Info del servicio"
+      operationId: root
+      security: []
+      responses:
+        "200":
+          description: Info del servicio
+  
+  /health:
+    get:
+      summary: "Health check"
+      operationId: health
+      security: []
+      responses:
+        "200":
+          description: Servicio saludable

@@ -1,0 +1,349 @@
+swagger: "2.0"
+info:
+  title: "registro"
+  version: "1.0.0"
+schemes:
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+
+securityDefinitions:
+  api_key:
+    type: apiKey
+    name: x-api-key
+    in: header
+
+security:
+  - api_key: []
+
+# Backend global: evita repetirlo en cada path
+x-google-backend:
+  address: https://registro-cwf5jjcg7a-ew.a.run.app
+  path_translation: APPEND_PATH_TO_ADDRESS
+
+# Extensión para habilitar CORS
+x-google-allow: all
+x-google-endpoints:
+  - name: odiseia-gw-registro-baej0f92.ew.gateway.dev
+    allowCors: true
+
+paths:
+  /health:
+    get:
+      operationId: health
+      responses:
+        "200":
+          description: OK
+
+  /admin/invitations:
+    post:
+      operationId: createInvitation
+      parameters:
+        - name: X-Admin-Secret
+          in: header
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required: [role]
+            properties:
+              role:
+                type: string
+                enum: [centro, profesor, alumno]
+              centro_id:
+                type: string
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Invalid admin secret
+
+  /auth/signup:
+    options:
+      operationId: signup_options
+      security: []
+      responses:
+        "200":
+          description: CORS preflight
+          headers:
+            Access-Control-Allow-Origin:
+              type: string
+            Access-Control-Allow-Methods:
+              type: string
+            Access-Control-Allow-Headers:
+              type: string
+    post:
+      operationId: signup
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required: [token, username, password]
+            properties:
+              token:
+                type: string
+              username:
+                type: string
+              password:
+                type: string
+              name:
+                type: string
+      responses:
+        "200":
+          description: OK
+
+  /auth/invitation-info:
+    options:
+      operationId: invitation_info_options
+      security: []
+      responses:
+        "200":
+          description: CORS preflight
+          headers:
+            Access-Control-Allow-Origin:
+              type: string
+            Access-Control-Allow-Methods:
+              type: string
+            Access-Control-Allow-Headers:
+              type: string
+    get:
+      operationId: invitation_info
+      parameters:
+        - name: token
+          in: query
+          required: true
+          type: string
+          description: "Token de invitación"
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: object
+            properties:
+              username:
+                type: string
+              role:
+                type: string
+              centro_id:
+                type: string
+              expires_at:
+                type: string
+        "400":
+          description: Token inválido o expirado
+
+  /centro/invitations:
+    options:
+      operationId: centro_invitations_options
+      security: []
+      responses:
+        "200":
+          description: CORS preflight
+          headers:
+            Access-Control-Allow-Origin:
+              type: string
+            Access-Control-Allow-Methods:
+              type: string
+            Access-Control-Allow-Headers:
+              type: string
+    get:
+      operationId: centro_list_invitations
+      parameters:
+        - name: Authorization
+          in: header
+          required: false
+          type: string
+        - name: X-JWT-Token
+          in: header
+          required: false
+          type: string
+      responses:
+        "200":
+          description: OK
+        "403":
+          description: Forbidden
+    post:
+      operationId: centro_create_invitation
+      parameters:
+        - name: Authorization
+          in: header
+          required: false
+          type: string
+        - name: X-JWT-Token
+          in: header
+          required: false
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required: [role, username]
+            properties:
+              role:
+                type: string
+                enum: [profesor, alumno]
+              username:
+                type: string
+              ttl_hours:
+                type: integer
+      responses:
+        "200":
+          description: OK
+        "403":
+          description: Forbidden
+        "409":
+          description: Usuario ya existe
+
+  /centro/invitations/{username}:
+    options:
+      operationId: centro_delete_user_options
+      security: []
+      parameters:
+        - name: username
+          in: path
+          required: true
+          type: string
+      responses:
+        "200":
+          description: CORS preflight
+          headers:
+            Access-Control-Allow-Origin:
+              type: string
+            Access-Control-Allow-Methods:
+              type: string
+            Access-Control-Allow-Headers:
+              type: string
+    delete:
+      operationId: centro_delete_user
+      security:
+        - api_key: []
+      x-google-jwt-locations:
+        - header: "X-Forwarded-Authorization"
+      parameters:
+        - name: username
+          in: path
+          required: true
+          type: string
+        - name: Authorization
+          in: header
+          required: false
+          type: string
+      responses:
+        "200":
+          description: OK
+        "403":
+          description: Forbidden
+        "404":
+          description: Usuario no encontrado
+
+  /centro/invitations/{username}/regenerate:
+    options:
+      operationId: centro_regenerate_invitation_options
+      security: []
+      parameters:
+        - name: username
+          in: path
+          required: true
+          type: string
+      responses:
+        "200":
+          description: CORS preflight
+          headers:
+            Access-Control-Allow-Origin:
+              type: string
+            Access-Control-Allow-Methods:
+              type: string
+            Access-Control-Allow-Headers:
+              type: string
+    post:
+      operationId: centro_regenerate_invitation
+      security:
+        - api_key: []
+      x-google-jwt-locations:
+        - header: "X-Forwarded-Authorization"
+      parameters:
+        - name: username
+          in: path
+          required: true
+          type: string
+        - name: Authorization
+          in: header
+          required: false
+          type: string
+      responses:
+        "200":
+          description: OK
+        "403":
+          description: Forbidden
+        "404":
+          description: Invitación expirada no encontrada
+
+  /auth/login:
+    options:
+      operationId: login_options
+      security: []
+      responses:
+        "200":
+          description: CORS preflight
+          headers:
+            Access-Control-Allow-Origin:
+              type: string
+            Access-Control-Allow-Methods:
+              type: string
+            Access-Control-Allow-Headers:
+              type: string
+    post:
+      operationId: login
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            type: object
+            required: [username, password]
+            properties:
+              username:
+                type: string
+              password:
+                type: string
+      responses:
+        "200":
+          description: OK
+
+  /me:
+    options:
+      operationId: me_options
+      security: []
+      responses:
+        "200":
+          description: CORS preflight
+          headers:
+            Access-Control-Allow-Origin:
+              type: string
+            Access-Control-Allow-Methods:
+              type: string
+            Access-Control-Allow-Headers:
+              type: string
+    get:
+      operationId: me
+      parameters:
+        - name: Authorization
+          in: header
+          required: false
+          type: string
+          description: "Bearer <jwt>"
+        - name: X-JWT-Token
+          in: header
+          required: false
+          type: string
+          description: "Bearer <jwt> (alternativa para evitar interferencia del gateway)"
+      responses:
+        "200":
+          description: OK

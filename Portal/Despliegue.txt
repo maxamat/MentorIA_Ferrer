@@ -1,0 +1,56 @@
+cd "C:\Users\rarmero\OneDrive - FERRER\Escritorio\MentorIA\Portal"
+
+for /f "delims=" %i in ('powershell -NoProfile -Command "Get-Date -Format yyyyMMddHHmmssfff"') do set FECHAHORA=%i
+
+set PROJECT_ID=ferrer-odiseia4good-sandbox
+set PROJECT_NUM=884652087350
+set REGION=europe-west1
+set SERVICE=portal
+set REPO=cloud-run-source-deploy
+set VERSION=latest
+set IMAGE=%REGION%-docker.pkg.dev/%PROJECT_ID%/%REPO%/%SERVICE%:%VERSION%
+set CB_BUCKET=gs://%PROJECT_ID%-cb-%REGION%
+set MIN_INSTANCES=1
+set MAX_INSTANCES=10
+set API_ID=odiseia-api-%SERVICE%
+set API_CONFIG=odiseia-config-%VERSION%-%FECHAHORA%
+set GATEWAY=odiseia-gw-%SERVICE%
+set RUN_SA=%PROJECT_NUM%-compute@developer.gserviceaccount.com
+set APIGW_SA=service-%PROJECT_NUM%@gcp-sa-apigateway.iam.gserviceaccount.com
+
+set VITE_API_BASE=https://odiseia-gw-registro-baej0f92.ew.gateway.dev
+set VITE_API_KEY=AIzaSyDa4toPt4-AQyQBCTAj8qsxSJbcs7ORUn8
+set VITE_BASEDATOS_BASE=https://odiseia-gw-basedatos-baej0f92.ew.gateway.dev
+set VITE_BASEDATOS_API_KEY=AIzaSyBmJRwoqf2POH0GZbidipRW9JhUlcnlRKc
+
+
+gcloud auth login
+
+gcloud config set project %PROJECT_ID%
+gcloud config set run/region %REGION%
+
+gcloud services enable run.googleapis.com artifactregistry.googleapis.com cloudbuild.googleapis.com apigateway.googleapis.com servicemanagement.googleapis.com servicecontrol.googleapis.com secretmanager.googleapis.com firestore.googleapis.com
+
+gcloud storage buckets create %CB_BUCKET% --location=%REGION%
+gcloud api-gateway apis create %API_ID%
+
+gcloud artifacts repositories create %REPO% --repository-format=docker --location=%REGION%
+gcloud auth configure-docker %REGION%-docker.pkg.dev
+gcloud builds submit . --region=%REGION% --config=cloudbuild.yaml --substitutions=_IMAGE=%IMAGE%,_VITE_API_BASE=%VITE_API_BASE%,_VITE_API_KEY=%VITE_API_KEY%,_VITE_BASEDATOS_BASE=%VITE_BASEDATOS_BASE%,_VITE_BASEDATOS_API_KEY=%VITE_BASEDATOS_API_KEY% --gcs-source-staging-dir=%CB_BUCKET%/staging --gcs-log-dir=%CB_BUCKET%/logs
+gcloud run deploy %SERVICE% --image %IMAGE% --region %REGION% --platform managed  --allow-unauthenticated  --port 8080
+gcloud run services add-iam-policy-binding %SERVICE% --region %REGION% --member="serviceAccount:%APIGW_SA%" --role="roles/run.invoker"
+gcloud run services update %SERVICE% --min-instances=%MIN_INSTANCES% --max-instances=%MAX_INSTANCES% --region=%REGION% --project=%PROJECT_ID%
+gcloud run services describe %SERVICE% --region %REGION% --format="value(status.url)"
+---->https://portal-cwf5jjcg7a-ew.a.run.app
+
+
+gcloud api-gateway api-configs create %API_CONFIG% --api=%API_ID% --openapi-spec=openapi-gateway.yaml  --project=%PROJECT_ID%
+gcloud api-gateway gateways create %GATEWAY% --api=%API_ID% --api-config=%API_CONFIG% --location=%REGION%  --project=%PROJECT_ID%
+gcloud api-gateway gateways describe %GATEWAY% --location=%REGION% --format="value(defaultHostname)"
+---->  odiseia-gw-portal-baej0f92.ew.gateway.dev
+set ENDPOINT=odiseia-gw-portal-baej0f92.ew.gateway.dev
+
+gcloud api-gateway apis describe %API_ID% --project=%PROJECT_ID%
+-----> (managedService:) odiseia-api-portal-1ang9606fmnfw.apigateway.ferrer-odiseia4good-sandbox.cloud.goog
+set MANAGED_SERVICE=odiseia-api-portal-1ang9606fmnfw.apigateway.ferrer-odiseia4good-sandbox.cloud.goog
+gcloud services enable %MANAGED_SERVICE% --project=%PROJECT_ID%

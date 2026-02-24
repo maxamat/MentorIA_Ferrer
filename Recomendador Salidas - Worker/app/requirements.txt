@@ -1,0 +1,16 @@
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+
+argon2-cffi==23.1.0
+PyJWT==2.10.1
+pydantic==2.10.4
+
+# Especificar numpy primero para evitar conflictos de compatibilidad binaria
+numpy==1.26.4
+pandas==2.2.0
+google-cloud-bigquery[pandas]==3.16.0
+google-cloud-storage==2.14.0
+google-auth==2.47.0
+google-genai==1.57.0
+
+googlemaps==4.10.0

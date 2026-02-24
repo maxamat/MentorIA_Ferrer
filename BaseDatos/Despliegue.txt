@@ -1,0 +1,122 @@
+cd "C:\Users\rarmero\OneDrive - FERRER\Escritorio\MentorIA\BaseDatos"
+
+for /f "delims=" %i in ('powershell -NoProfile -Command "Get-Date -Format yyyyMMddHHmmssfff"') do set FECHAHORA=%i
+
+set PROJECT_ID=ferrer-odiseia4good-sandbox
+set PROJECT_NUM=884652087350
+set REGION=europe-west1
+set SERVICE=basedatos
+set DATASET_ID=%SERVICE%
+set REPO=cloud-run-source-deploy
+set VERSION=latest
+set IMAGE=%REGION%-docker.pkg.dev/%PROJECT_ID%/%REPO%/%SERVICE%:%VERSION%
+set CB_BUCKET=gs://%PROJECT_ID%-cb-%REGION%
+set MIN_INSTANCES=0
+set MAX_INSTANCES=10
+set API_ID=odiseia-api-%SERVICE%
+set API_CONFIG=odiseia-config-%VERSION%-%FECHAHORA%
+set GATEWAY=odiseia-gw-%SERVICE%
+set RUN_SA=%PROJECT_NUM%-compute@developer.gserviceaccount.com
+set APIGW_SA=service-%PROJECT_NUM%@gcp-sa-apigateway.iam.gserviceaccount.com
+set GCS_BUCKET_ASIGNATURAS=odiseia-asignaturas-images
+set GCS_BUCKET_AVATARES=odiseia-avatares-images
+set GCS_BUCKET_SALIDAS=odiseia-salidas-images
+set GCS_BUCKET_CURRICULUMS=odiseia-curriculums-docs
+set GCS_BUCKET_CONTENIDO=odiseia-contenido-html
+set GCS_BUCKET_EJERCICIO=odiseia-ejercicio-html
+set GCS_BUCKET_EJERCICIO_TMP=odiseia-ejercicio-tmp-html
+set GCS_BUCKET_TRABAJO=odiseia-trabajo-html
+set GCS_BUCKET_TRABAJO_TMP=odiseia-trabajo-tmp-html
+set IA_ENDPOINT_API_KEY=AIzaSyCvfI5UGovcJJe-uyoPeqUA9IXCMArZFqo
+set IA_ENDPOINT_URL=https://odiseia-gw-ia-baej0f92.ew.gateway.dev
+gcloud auth login
+
+gcloud config set project %PROJECT_ID%
+gcloud config set run/region %REGION%
+
+gcloud services enable run.googleapis.com artifactregistry.googleapis.com cloudbuild.googleapis.com apigateway.googleapis.com servicemanagement.googleapis.com servicecontrol.googleapis.com secretmanager.googleapis.com firestore.googleapis.com
+
+gcloud storage buckets create %CB_BUCKET% --location=%REGION%
+gcloud api-gateway apis create %API_ID%
+
+
+gcloud artifacts repositories create %REPO% --repository-format=docker --location=%REGION%
+gcloud auth configure-docker %REGION%-docker.pkg.dev
+gcloud builds submit . --region=%REGION% --tag %IMAGE% --gcs-source-staging-dir=%CB_BUCKET%/staging --gcs-log-dir=%CB_BUCKET%/logs
+gcloud run deploy %SERVICE% --image %IMAGE% --region %REGION% --platform managed  --allow-unauthenticated  --port 8080  --set-env-vars "PROJECT_ID=%PROJECT_ID%,REGION=%REGION%,DATASET_ID=%DATASET_ID%,GCS_BUCKET_ASIGNATURAS=%GCS_BUCKET_ASIGNATURAS%,GCS_BUCKET_AVATARES=%GCS_BUCKET_AVATARES%,GCS_BUCKET_SALIDAS=%GCS_BUCKET_SALIDAS%,IA_ENDPOINT_URL=%IA_ENDPOINT_URL%,IA_ENDPOINT_API_KEY=%IA_ENDPOINT_API_KEY%,GCS_BUCKET_CURRICULUMS=%GCS_BUCKET_CURRICULUMS%,GCS_BUCKET_CONTENIDO=%GCS_BUCKET_CONTENIDO%,GCS_BUCKET_EJERCICIO=%GCS_BUCKET_EJERCICIO%,GCS_BUCKET_TRABAJO=%GCS_BUCKET_TRABAJO%"
+gcloud run services add-iam-policy-binding %SERVICE% --region %REGION% --member="serviceAccount:%APIGW_SA%" --role="roles/run.invoker"
+gcloud run services update %SERVICE% --min-instances=%MIN_INSTANCES% --max-instances=%MAX_INSTANCES% --region=%REGION% --project=%PROJECT_ID%
+gcloud run services describe %SERVICE% --region %REGION% --format="value(status.url)"
+---->https://basedatos-cwf5jjcg7a-ew.a.run.app
+
+
+gcloud api-gateway api-configs create %API_CONFIG% --api=%API_ID% --openapi-spec=openapi-gateway.yaml  --project=%PROJECT_ID%
+gcloud api-gateway gateways create %GATEWAY% --api=%API_ID% --api-config=%API_CONFIG% --location=%REGION%  --project=%PROJECT_ID%
+gcloud api-gateway gateways describe %GATEWAY% --location=%REGION% --format="value(defaultHostname)"
+---->  odiseia-gw-basedatos-baej0f92.ew.gateway.dev
+set ENDPOINT=odiseia-gw-basedatos-baej0f92.ew.gateway.dev
+
+gcloud api-gateway apis describe %API_ID% --project=%PROJECT_ID%
+-----> (managedService:) odiseia-api-basedatos-3qdrmu7p4ciu4.apigateway.ferrer-odiseia4good-sandbox.cloud.goog
+set MANAGED_SERVICE=odiseia-api-basedatos-3qdrmu7p4ciu4.apigateway.ferrer-odiseia4good-sandbox.cloud.goog
+gcloud services enable %MANAGED_SERVICE% --project=%PROJECT_ID%
+
+
+----> AIzaSyBmJRwoqf2POH0GZbidipRW9JhUlcnlRKc
+set API_KEY=AIzaSyBmJRwoqf2POH0GZbidipRW9JhUlcnlRKc
+
+
+curl -s -X POST "https://%ENDPOINT%/crear_centro" -H "Content-Type: application/json" -H "x-api-key: %API_KEY%" -d "{\"centro_id\":\"test\"}"
+
+
+
+
+gcloud storage buckets create gs://%GCS_BUCKET_ASIGNATURAS% --project=%PROJECT_ID% --location=%REGION% --uniform-bucket-level-access
+gcloud storage buckets add-iam-policy-binding gs://%GCS_BUCKET_ASIGNATURAS% --member=serviceAccount:%RUN_SA% --role=roles/storage.objectAdmin
+echo '[{"origin":["*"],"method":["GET","HEAD"],"responseHeader":["Content-Type","Content-Length"],"maxAgeSeconds":3600}]' > cors.json
+gsutil cors set cors.json gs://%GCS_BUCKET_ASIGNATURAS%
+gcloud storage buckets add-iam-policy-binding gs://%GCS_BUCKET_ASIGNATURAS% --member="serviceAccount:odiseia@ferrer-odiseia4good-sandbox.iam.gserviceaccount.com" --role="roles/storage.objectAdmin"
+
+gcloud storage buckets create gs://%GCS_BUCKET_AVATARES% --project=%PROJECT_ID% --location=%REGION% --uniform-bucket-level-access
+gcloud storage buckets add-iam-policy-binding gs://%GCS_BUCKET_AVATARES% --member=serviceAccount:%RUN_SA% --role=roles/storage.objectAdmin
+echo '[{"origin":["*"],"method":["GET","HEAD"],"responseHeader":["Content-Type","Content-Length"],"maxAgeSeconds":3600}]' > cors.json
+gsutil cors set cors.json gs://%GCS_BUCKET_AVATARES%
+gcloud storage buckets add-iam-policy-binding gs://%GCS_BUCKET_AVATARES% --member="serviceAccount:odiseia@ferrer-odiseia4good-sandbox.iam.gserviceaccount.com" --role="roles/storage.objectAdmin"
+
+gcloud storage buckets create gs://%GCS_BUCKET_SALIDAS% --project=%PROJECT_ID% --location=%REGION% --uniform-bucket-level-access
+gcloud storage buckets add-iam-policy-binding gs://%GCS_BUCKET_SALIDAS% --member=serviceAccount:%RUN_SA% --role=roles/storage.objectAdmin
+echo '[{"origin":["*"],"method":["GET","HEAD"],"responseHeader":["Content-Type","Content-Length"],"maxAgeSeconds":3600}]' > cors.json
+gsutil cors set cors.json gs://%GCS_BUCKET_SALIDAS%
+gcloud storage buckets add-iam-policy-binding gs://%GCS_BUCKET_SALIDAS% --member="serviceAccount:odiseia@ferrer-odiseia4good-sandbox.iam.gserviceaccount.com" --role="roles/storage.objectAdmin"
+
+gcloud storage buckets create gs://%GCS_BUCKET_CONTENIDO% --project=%PROJECT_ID% --location=%REGION% --uniform-bucket-level-access
+gcloud storage buckets add-iam-policy-binding gs://%GCS_BUCKET_CONTENIDO% --member=serviceAccount:%RUN_SA% --role=roles/storage.objectAdmin
+echo '[{"origin":["*"],"method":["GET","HEAD"],"responseHeader":["Content-Type","Content-Length"],"maxAgeSeconds":3600}]' > cors.json
+gsutil cors set cors.json gs://%GCS_BUCKET_CONTENIDO%
+gcloud storage buckets add-iam-policy-binding gs://%GCS_BUCKET_CONTENIDO% --member="serviceAccount:odiseia@ferrer-odiseia4good-sandbox.iam.gserviceaccount.com" --role="roles/storage.objectAdmin"
+
+gcloud storage buckets create gs://%GCS_BUCKET_EJERCICIO% --project=%PROJECT_ID% --location=%REGION% --uniform-bucket-level-access
+gcloud storage buckets add-iam-policy-binding gs://%GCS_BUCKET_EJERCICIO% --member=serviceAccount:%RUN_SA% --role=roles/storage.objectAdmin
+echo '[{"origin":["*"],"method":["GET","HEAD"],"responseHeader":["Content-Type","Content-Length"],"maxAgeSeconds":3600}]' > cors.json
+gsutil cors set cors.json gs://%GCS_BUCKET_EJERCICIO%
+gcloud storage buckets add-iam-policy-binding gs://%GCS_BUCKET_EJERCICIO% --member="serviceAccount:odiseia@ferrer-odiseia4good-sandbox.iam.gserviceaccount.com" --role="roles/storage.objectAdmin"
+
+gcloud storage buckets create gs://%GCS_BUCKET_TRABAJO% --project=%PROJECT_ID% --location=%REGION% --uniform-bucket-level-access
+gcloud storage buckets add-iam-policy-binding gs://%GCS_BUCKET_TRABAJO% --member=serviceAccount:%RUN_SA% --role=roles/storage.objectAdmin
+echo '[{"origin":["*"],"method":["GET","HEAD"],"responseHeader":["Content-Type","Content-Length"],"maxAgeSeconds":3600}]' > cors.json
+gsutil cors set cors.json gs://%GCS_BUCKET_TRABAJO%
+gcloud storage buckets add-iam-policy-binding gs://%GCS_BUCKET_TRABAJO% --member="serviceAccount:odiseia@ferrer-odiseia4good-sandbox.iam.gserviceaccount.com" --role="roles/storage.objectAdmin"
+
+gcloud storage buckets create gs://%GCS_BUCKET_EJERCICIO_TMP% --project=%PROJECT_ID% --location=%REGION% --uniform-bucket-level-access
+gcloud storage buckets add-iam-policy-binding gs://%GCS_BUCKET_EJERCICIO_TMP% --member=serviceAccount:%RUN_SA% --role=roles/storage.objectAdmin
+echo '[{"origin":["*"],"method":["GET","HEAD"],"responseHeader":["Content-Type","Content-Length"],"maxAgeSeconds":3600}]' > cors.json
+gsutil cors set cors.json gs://%GCS_BUCKET_EJERCICIO_TMP%
+gcloud storage buckets add-iam-policy-binding gs://%GCS_BUCKET_EJERCICIO_TMP% --member="serviceAccount:odiseia@ferrer-odiseia4good-sandbox.iam.gserviceaccount.com" --role="roles/storage.objectAdmin"
+
+gcloud storage buckets create gs://%GCS_BUCKET_TRABAJO_TMP% --project=%PROJECT_ID% --location=%REGION% --uniform-bucket-level-access
+gcloud storage buckets add-iam-policy-binding gs://%GCS_BUCKET_TRABAJO_TMP% --member=serviceAccount:%RUN_SA% --role=roles/storage.objectAdmin
+echo '[{"origin":["*"],"method":["GET","HEAD"],"responseHeader":["Content-Type","Content-Length"],"maxAgeSeconds":3600}]' > cors.json
+gsutil cors set cors.json gs://%GCS_BUCKET_TRABAJO_TMP%
+gcloud storage buckets add-iam-policy-binding gs://%GCS_BUCKET_TRABAJO_TMP% --member="serviceAccount:odiseia@ferrer-odiseia4good-sandbox.iam.gserviceaccount.com" --role="roles/storage.objectAdmin"
+
+

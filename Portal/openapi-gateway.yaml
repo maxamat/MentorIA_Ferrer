@@ -1,0 +1,340 @@
+swagger: "2.0"
+info:
+  title: "portal"
+  version: "1.0.0"
+schemes:
+  - https
+
+produces:
+  - text/html
+  - application/javascript
+  - text/css
+  - application/json
+  - image/svg+xml
+  - image/png
+  - image/x-icon
+  - font/woff2
+  - font/woff
+
+x-google-backend:
+  address: https://portal-cwf5jjcg7a-ew.a.run.app
+  path_translation: APPEND_PATH_TO_ADDRESS
+
+paths:
+  # Ruta principal
+  /:
+    get:
+      operationId: root
+      responses:
+        "200":
+          description: OK
+
+  # Rutas SPA (React Router) - añade aquí las que uses
+  /alta:
+    get:
+      operationId: alta
+      responses:
+        "200":
+          description: OK
+
+  /login:
+    get:
+      operationId: login
+      responses:
+        "200":
+          description: OK
+
+  /app:
+    get:
+      operationId: app
+      responses:
+        "200":
+          description: OK
+
+  /clases:
+    get:
+      operationId: clases
+      responses:
+        "200":
+          description: OK
+
+  /asignaturas:
+    get:
+      operationId: asignaturas
+      responses:
+        "200":
+          description: OK
+
+  /profesores:
+    get:
+      operationId: profesores
+      responses:
+        "200":
+          description: OK
+
+  /alumnos:
+    get:
+      operationId: alumnos
+      responses:
+        "200":
+          description: OK
+
+  /preferencias:
+    get:
+      operationId: preferencias
+      responses:
+        "200":
+          description: OK
+
+  /avatar:
+    get:
+      operationId: avatar
+      responses:
+        "200":
+          description: OK
+
+  /asignaturas-alumno:
+    get:
+      operationId: asignaturas-alumno
+      responses:
+        "200":
+          description: OK
+
+  /ejercicios:
+    get:
+      operationId: ejercicios
+      responses:
+        "200":
+          description: OK
+
+  /microproyectos:
+    get:
+      operationId: microproyectos
+      responses:
+        "200":
+          description: OK
+
+  /contenido-asignatura/{clase}/{asignatura}:
+    get:
+      operationId: contenido-asignatura-dynamic
+      parameters:
+        - name: clase
+          in: path
+          required: true
+          type: string
+        - name: asignatura
+          in: path
+          required: true
+          type: string
+      responses:
+        "200":
+          description: OK
+
+  /ejercicios-asignatura/{clase}/{asignatura}:
+    get:
+      operationId: ejercicios-asignatura-dynamic
+      parameters:
+        - name: clase
+          in: path
+          required: true
+          type: string
+        - name: asignatura
+          in: path
+          required: true
+          type: string
+      responses:
+        "200":
+          description: OK
+
+  /ejercicio/{clase}/{asignatura}/{unidad}:
+    get:
+      operationId: ejercicio-detalle-dynamic
+      parameters:
+        - name: clase
+          in: path
+          required: true
+          type: string
+        - name: asignatura
+          in: path
+          required: true
+          type: string
+        - name: unidad
+          in: path
+          required: true
+          type: string
+      responses:
+        "200":
+          description: OK
+
+  /microproyectos-asignatura/{clase}/{asignatura}:
+    get:
+      operationId: microproyectos-asignatura-dynamic
+      parameters:
+        - name: clase
+          in: path
+          required: true
+          type: string
+        - name: asignatura
+          in: path
+          required: true
+          type: string
+      responses:
+        "200":
+          description: OK
+
+  /salidas-profesionales:
+    get:
+      operationId: salidas-profesionales
+      responses:
+        "200":
+          description: OK
+
+  /curriculums:
+    get:
+      operationId: curriculums
+      responses:
+        "200":
+          description: OK
+
+  /configuracion:
+    get:
+      operationId: configuracion
+      responses:
+        "200":
+          description: OK
+
+  /programacion:
+    get:
+      operationId: programacion
+      responses:
+        "200":
+          description: OK
+
+  /contenido-formativo:
+    get:
+      operationId: contenido-formativo
+      responses:
+        "200":
+          description: OK
+
+  /secciones:
+    get:
+      operationId: secciones
+      responses:
+        "200":
+          description: OK
+
+  /dashboard-profesor:
+    get:
+      operationId: dashboard-profesor
+      responses:
+        "200":
+          description: OK
+
+  /terminos-condiciones:
+    get:
+      operationId: terminos-condiciones
+      responses:
+        "200":
+          description: OK
+
+  # Assets de Vite
+  /assets/{asset}:
+    get:
+      operationId: assets
+      parameters:
+        - name: asset
+          in: path
+          required: true
+          type: string
+      responses:
+        "200":
+          description: OK
+
+  # Video
+  /video-landing.mp4:
+    get:
+      operationId: video
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+            format: binary
+
+  /video-landing.webm:
+    get:
+      operationId: video-webm
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+            format: binary
+
+  # Logo
+  /logo.png:
+    get:
+      operationId: logo
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+            format: binary
+
+  # Logo blanco
+  /logoblanco.png:
+    get:
+      operationId: logoblanco
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+            format: binary
+
+  # MentorIA Image
+  /MentorIA.png:
+    get:
+      operationId: mentoria-image
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+            format: binary
+
+  # Avatar Image
+  /avatar.png:
+    get:
+      operationId: avatar-image
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+            format: binary
+
+  # Favicon
+  /favicon.ico:
+    get:
+      operationId: favicon
+      responses:
+        "200":
+          description: OK
+
+  # Robots/sitemap (si los tienes)
+  /robots.txt:
+    get:
+      operationId: robots
+      responses:
+        "200":
+          description: OK
+
+  /sitemap.xml:
+    get:
+      operationId: sitemap
+      responses:
+        "200":
+          description: OK

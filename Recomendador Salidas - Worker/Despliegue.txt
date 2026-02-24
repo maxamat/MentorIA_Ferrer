@@ -1,0 +1,50 @@
+cd "C:\Users\rarmero\OneDrive - FERRER\Escritorio\MentorIA\Recomendador Salidas - Worker"
+
+for /f "delims=" %i in ('powershell -NoProfile -Command "Get-Date -Format yyyyMMddHHmmssfff"') do set FECHAHORA=%i
+
+set PROJECT_ID=ferrer-odiseia4good-sandbox
+set PROJECT_NUM=884652087350
+set REGION=europe-west1
+set SERVICE=recomendador-salidas-worker
+set REPO=cloud-run-source-deploy
+set VERSION=latest
+set DATASET_ID=basedatos
+set IMAGE=%REGION%-docker.pkg.dev/%PROJECT_ID%/%REPO%/%SERVICE%:%VERSION%
+set CB_BUCKET=gs://%PROJECT_ID%-cb-%REGION%
+set API_ID=odiseia-api-%SERVICE%
+set API_CONFIG=odiseia-config-%VERSION%-%FECHAHORA%
+set GATEWAY=odiseia-gw-%SERVICE%
+set RUN_SA=%PROJECT_NUM%-compute@developer.gserviceaccount.com
+set APIGW_SA=service-%PROJECT_NUM%@gcp-sa-apigateway.iam.gserviceaccount.com
+set MIN_INSTANCES=0
+set MAX_INSTANCES=10
+set CLOUD_TASKS_QUEUE=%SERVICE%-task-queue
+set GOOGLE_CLOUD_GEMINI_API_KEY=AQ.Ab8RN6LLRdGj3J9GJfX5ApChy9p76vresV_H98OL4NZjXIeMxA
+set GOOGLE_CLOUD_MAPS_API_KEY=AIzaSyBsLMOhaIz52P81ZmMC2Ap-P1Il8CGdY2o
+set GCS_BUCKET_AVATARES=odiseia-avatares-images
+
+gcloud auth login
+gcloud config set project %PROJECT_ID%
+gcloud config set run/region %REGION%
+
+gcloud services enable run.googleapis.com artifactregistry.googleapis.com cloudbuild.googleapis.com cloudtasks.googleapis.com apigateway.googleapis.com servicemanagement.googleapis.com servicecontrol.googleapis.com
+
+gcloud storage buckets create %CB_BUCKET% --location=%REGION%
+gcloud tasks queues create %CLOUD_TASKS_QUEUE% --location=%REGION% --max-attempts=3 --max-retry-duration=3600s --max-dispatches-per-second=3 --max-concurrent-dispatches=3 --min-backoff=900s --max-backoff=3600s --max-doublings=3
+gcloud artifacts repositories create %REPO% --repository-format=docker --location=%REGION%
+
+gcloud auth configure-docker %REGION%-docker.pkg.dev
+gcloud builds submit . --region=%REGION% --tag %IMAGE% --gcs-source-staging-dir=%CB_BUCKET%/staging --gcs-log-dir=%CB_BUCKET%/logs
+gcloud run deploy %SERVICE% --image %IMAGE% --region %REGION% --platform managed --no-allow-unauthenticated --port 8080 --timeout=3600 --memory=4Gi --cpu=2 --min-instances=%MIN_INSTANCES% --max-instances=%MAX_INSTANCES% --set-env-vars "PROJECT_ID=%PROJECT_ID%,REGION=%REGION%,GOOGLE_CLOUD_GEMINI_API_KEY=%GOOGLE_CLOUD_GEMINI_API_KEY%,DATASET_ID=%DATASET_ID%,GOOGLE_CLOUD_MAPS_API_KEY=%GOOGLE_CLOUD_MAPS_API_KEY%,GCS_BUCKET_AVATARES=%GCS_BUCKET_AVATARES%"
+gcloud run services add-iam-policy-binding %SERVICE% --region %REGION% --member="serviceAccount:%APIGW_SA%" --role="roles/run.invoker"
+
+gcloud run services describe %SERVICE% --region %REGION% --format="value(status.url)"
+
+gcloud api-gateway api-configs create %API_CONFIG% --api=%API_ID% --openapi-spec=openapi-gateway.yaml  --project=%PROJECT_ID%
+gcloud api-gateway gateways create %GATEWAY% --api=%API_ID% --api-config=%API_CONFIG% --location=%REGION%  --project=%PROJECT_ID%
+
+gcloud api-gateway gateways describe %GATEWAY% --location=%REGION% --format="value(defaultHostname)"
+
+gcloud projects add-iam-policy-binding %PROJECT_ID% --member="serviceAccount:%RUN_SA%" --role="roles/cloudtasks.enqueuer"
+gcloud projects add-iam-policy-binding %PROJECT_ID% --member="serviceAccount:odiseia@ferrer-odiseia4good-sandbox.iam.gserviceaccount.com" --role="roles/cloudtasks.enqueuer"
+gcloud projects add-iam-policy-binding %PROJECT_ID% --member="serviceAccount:%PROJECT_NUM%-compute@developer.gserviceaccount.com" --role="roles/cloudtasks.enqueuer"
