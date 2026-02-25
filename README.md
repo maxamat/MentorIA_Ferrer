@@ -90,8 +90,8 @@ El proyecto está organizado en microservicios independientes:
 
 ### 1. Clonar el Repositorio
 ```bash
-git clone https://github.com/tu-usuario/mentoria-max.git
-cd mentoria-max
+git clone https://github.com/tu-usuario/mentoria.git
+cd mentoria
 ```
 
 ### 2. Configurar Credenciales
