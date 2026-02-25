@@ -51,7 +51,7 @@ set APIGW_SA=service-%PROJECT_NUM%@gcp-sa-apigateway.iam.gserviceaccount.com
 gcloud artifacts repositories create %REPO% --repository-format=docker --location=%REGION%
 gcloud auth configure-docker %REGION%-docker.pkg.dev
 gcloud builds submit . --region=%REGION% --tag %IMAGE% --gcs-source-staging-dir=%CB_BUCKET%/staging --gcs-log-dir=%CB_BUCKET%/logs
-gcloud run deploy %SERVICE% --image %IMAGE% --region %REGION% --platform managed  --allow-unauthenticated  --port 8080  --set-env-vars "APP_BASE_URL=https://odiseia-gw-portal-baej0f92.ew.gateway.dev,BASEDATOS_ENDPOINT=odiseia-gw-basedatos-baej0f92.ew.gateway.dev,BASEDATOS_API_KEY=AIzaSyBmJRwoqf2POH0GZbidipRW9JhUlcnlRKc" --set-secrets "JWT_SECRET=%JWT_SECRET_NAME%:latest,ADMIN_SECRET=%ADMIN_SECRET_NAME%:latest"
+gcloud run deploy %SERVICE% --image %IMAGE% --region %REGION% --platform managed  --allow-unauthenticated  --port 8080  --set-env-vars "APP_BASE_URL=https://odiseia-gw-portal-baej0f92.ew.gateway.dev,BASEDATOS_ENDPOINT=odiseia-gw-basedatos-baej0f92.ew.gateway.dev,BASEDATOS_API_KEY=" --set-secrets "JWT_SECRET=%JWT_SECRET_NAME%:latest,ADMIN_SECRET=%ADMIN_SECRET_NAME%:latest"
 gcloud run services add-iam-policy-binding %SERVICE% --region %REGION% --member="serviceAccount:%APIGW_SA%" --role="roles/run.invoker"
 gcloud run services update %SERVICE% --min-instances=%MIN_INSTANCES% --max-instances=%MAX_INSTANCES% --region=%REGION% --project=%PROJECT_ID%
 gcloud run services describe %SERVICE% --region %REGION% --format="value(status.url)"
@@ -72,8 +72,8 @@ set MANAGED_SERVICE=odiseia-api-registro-2354kuynuv0oi.apigateway.ferrer-odiseia
 gcloud services enable %MANAGED_SERVICE% --project=%PROJECT_ID%
 
 
-----> AIzaSyDa4toPt4-AQyQBCTAj8qsxSJbcs7ORUn8
-set API_KEY=AIzaSyDa4toPt4-AQyQBCTAj8qsxSJbcs7ORUn8
+----> 
+set API_KEY=
 
 
 curl -s -X POST "https://%ENDPOINT%/admin/invitations" -H "Content-Type: application/json" -H "x-api-key: %API_KEY%" -H "X-Admin-Secret: %ADMIN_SECRET%" -d "{\"role\":\"centro\",\"username\":\"ferri\",\"centro_id\":null}"

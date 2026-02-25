@@ -19,7 +19,7 @@ set APIGW_SA=service-%PROJECT_NUM%@gcp-sa-apigateway.iam.gserviceaccount.com
 set MIN_INSTANCES=0
 set MAX_INSTANCES=10
 set CLOUD_TASKS_QUEUE=%SERVICE%-task-queue
-set GOOGLE_CLOUD_GEMINI_API_KEY=AQ.Ab8RN6LLRdGj3J9GJfX5ApChy9p76vresV_H98OL4NZjXIeMxA
+set GOOGLE_CLOUD_GEMINI_API_KEY=
 
 gcloud auth login
 gcloud config set project %PROJECT_ID%

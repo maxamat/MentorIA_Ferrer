@@ -27,7 +27,7 @@ set GCS_BUCKET_EJERCICIO=odiseia-ejercicio-html
 set GCS_BUCKET_EJERCICIO_TMP=odiseia-ejercicio-tmp-html
 set GCS_BUCKET_TRABAJO=odiseia-trabajo-html
 set GCS_BUCKET_TRABAJO_TMP=odiseia-trabajo-tmp-html
-set IA_ENDPOINT_API_KEY=AIzaSyCvfI5UGovcJJe-uyoPeqUA9IXCMArZFqo
+set IA_ENDPOINT_API_KEY=
 set IA_ENDPOINT_URL=https://odiseia-gw-ia-baej0f92.ew.gateway.dev
 gcloud auth login
 
@@ -62,8 +62,8 @@ set MANAGED_SERVICE=odiseia-api-basedatos-3qdrmu7p4ciu4.apigateway.ferrer-odisei
 gcloud services enable %MANAGED_SERVICE% --project=%PROJECT_ID%
 
 
-----> AIzaSyBmJRwoqf2POH0GZbidipRW9JhUlcnlRKc
-set API_KEY=AIzaSyBmJRwoqf2POH0GZbidipRW9JhUlcnlRKc
+----> 
+set API_KEY=
 
 
 curl -s -X POST "https://%ENDPOINT%/crear_centro" -H "Content-Type: application/json" -H "x-api-key: %API_KEY%" -d "{\"centro_id\":\"test\"}"

@@ -19,9 +19,9 @@ set RUN_SA=%PROJECT_NUM%-compute@developer.gserviceaccount.com
 set APIGW_SA=service-%PROJECT_NUM%@gcp-sa-apigateway.iam.gserviceaccount.com
 
 set VITE_API_BASE=https://odiseia-gw-registro-baej0f92.ew.gateway.dev
-set VITE_API_KEY=AIzaSyDa4toPt4-AQyQBCTAj8qsxSJbcs7ORUn8
+set VITE_API_KEY=
 set VITE_BASEDATOS_BASE=https://odiseia-gw-basedatos-baej0f92.ew.gateway.dev
-set VITE_BASEDATOS_API_KEY=AIzaSyBmJRwoqf2POH0GZbidipRW9JhUlcnlRKc
+set VITE_BASEDATOS_API_KEY=
 
 
 gcloud auth login

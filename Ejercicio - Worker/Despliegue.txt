@@ -21,8 +21,8 @@ set MAX_INSTANCES=10
 set GCS_BUCKET_CONTENIDO=odiseia-contenido-html
 set GCS_BUCKET_EJERCICIO=odiseia-ejercicio-html
 set CLOUD_TASKS_QUEUE=%SERVICE%-task-queue
-set GOOGLE_CLOUD_GEMINI_API_KEY=AQ.Ab8RN6LLRdGj3J9GJfX5ApChy9p76vresV_H98OL4NZjXIeMxA
-set ELEVENLABS_API_KEY=sk_b3068940a8008714fbc0ca6d7cf1afabefc18b0e6fba2762
+set GOOGLE_CLOUD_GEMINI_API_KEY=
+set ELEVENLABS_API_KEY=
 
 gcloud auth login
 gcloud config set project %PROJECT_ID%
